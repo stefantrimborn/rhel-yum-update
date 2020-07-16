@@ -1,9 +1,7 @@
 ---
 - hosts: all
   tasks:
-  - name: check packages for updates
-    become: true
-    become_user: root
+  - name: check packages for updates    
     shell: yum list updates | awk 'f;/Updated Packages/{f=1;}' | awk '{ print $1 }'
     changed_when: updates.stdout_lines | length > 0
     args:
@@ -16,22 +14,16 @@
 
   - when: updates.stdout_lines | length > 0
     block:
-      - name: install updates using yum
-        become: true
-        become_user: root
+      - name: install updates using yum        
         yum:
           name: "*"
           state: latest
 
-      - name: install yum-utils
-        become: true
-        become_user: root
+      - name: install yum-utils        
         package:
           name: yum-utils
 
-      - name: check if reboot is required
-        become: true
-        become_user: root
+      - name: check if reboot is required        
         shell: needs-restarting -r
         failed_when: false
         register: reboot_required
@@ -39,9 +31,7 @@
 
   - when: updates.stdout_lines | length > 0 and reboot_required.rc != 0
     block:
-      - name: reboot the server if required
-        become: true
-        become_user: root
+      - name: reboot the server if required        
         shell: sleep 3; reboot
         ignore_errors: true
         changed_when: false
